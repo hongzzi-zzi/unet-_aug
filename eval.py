@@ -85,7 +85,7 @@ num_batch_test=np.ceil(num_data_test/batch_size)
 # label size
 # label_lst=os.listdir(os.path.join(data_dir, 'label'))
 # label_path=os.path.join(data_dir, 'label', label_lst[0])
-origin_size=(512, 512)
+# origin_size=(512, 512)
 
 # functions
 fn_tonumpy=lambda x:x.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
