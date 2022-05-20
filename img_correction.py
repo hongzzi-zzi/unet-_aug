@@ -4,6 +4,9 @@ from IPython.display import clear_output, Image, display
 import os
 from matplotlib import pyplot as plt
 #%%
+path='/home/h/Desktop/data/random_train/m_label'
+imglist=os.listdir(path)
+#%%
 def img_contrast(img):
     R, G, B = cv2.split(img)
     output1_R = cv2.equalizeHist(R)
@@ -11,12 +14,6 @@ def img_contrast(img):
     output1_B = cv2.equalizeHist(B)
     final = cv2.merge((output1_R, output1_G, output1_B))
     return final
-#%%
-
-#%%
-
-path='/home/h/Desktop/data/random_train/m_label'
-imglist=os.listdir(path)
 #%%
 for i in imglist:
     i_path=os.path.join(path, i)
