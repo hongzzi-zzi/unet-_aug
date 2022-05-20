@@ -13,6 +13,8 @@ from util import load
 from dataset import *
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+%matplotlib inline 
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings(action='ignore')
 
@@ -77,12 +79,31 @@ net = UNet().to(device)
 fn_loss=nn.BCEWithLogitsLoss().to(device)
 optim=torch.optim.Adam(net.parameters(), lr=lr)
 net, optim, st_epoch = load(ckpt_dir=ckpt_dir, net=net, optim=optim)
-for batch, data in enumerate(test_loader, 1):
-    input=data[0].to(device)
-    with torch.no_grad(): # no backward pass 
-        net.eval()
+#%%
+tensor2PIL=transforms.ToPILImage()
+idx=0
+with torch.no_grad(): # no backward pass 
+    net.eval()
+    
+    for batch, data in enumerate(test_loader, 1):
+        input=data[0].to(device).unsqueeze(0)
+        # print(input.shape)# torch.Size([1, 3, 512, 512])
+        
+        # print(input.shape)
         output=net(input)# torch.Size([1, 3, 512, 512])
-        ## 저장
+        output=fn_tonumpy(fn_class(output))# (1, 512, 512, 1)
+        input=fn_tonumpy(fn_denorm(input, mean=0.5, std=0.5))# (4, 512, 512, 3)
+        compout=np.zeros((output.shape[0], output.shape[1], output.shape[2], 3))
+        for each_channel in range(3):
+                compout[:,:,:,each_channel] = output[:,:,:,0]
+        comparray=np.hstack((compout,input))
+        comp=Image.fromarray(np.uint8(comparray.squeeze()*225))
+        test_file=os.path.join(test_dir,sorted(os.listdir(test_dir))[idx])
+        nameee='comp'+str(idx)+'.png'
+        idx+=1
+        
+        comp.resize((512, 1024)).save(os.path.join(result_dir, nameee))
+        ## 저장하는거 만들기
 
 #%%
 
