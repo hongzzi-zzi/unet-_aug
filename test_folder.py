@@ -11,6 +11,8 @@ from PIL import Image
 from model import UNet
 from util import load
 from dataset import *
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
 
 warnings.filterwarnings(action='ignore')
 
@@ -61,12 +63,31 @@ print("result dir: %s" % result_dir)
 if not os.path.exists(result_dir):
     os.makedirs(result_dir)
     print('make new result_dir')
-    
-    
-#%%
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#%%
+## 한번 쭉 보정한다음에 넣으,면 더 잘 알아들을까 ?ㅇㅅㅇ
+transform=transforms.Compose([transforms.Resize((512, 512)),
+                              transforms.ToTensor(),
+                              transforms.Normalize(mean=0.5, std=0.5)])
+test_dataset=CustomDataset(img_dir=test_dir,  transform=transform)       
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-for test_file in test_lst:
+#%%
+net = UNet().to(device)
+fn_loss=nn.BCEWithLogitsLoss().to(device)
+optim=torch.optim.Adam(net.parameters(), lr=lr)
+net, optim, st_epoch = load(ckpt_dir=ckpt_dir, net=net, optim=optim)
+for batch, data in enumerate(test_loader, 1):
+    input=data[0].to(device)
+    with torch.no_grad(): # no backward pass 
+        net.eval()
+        output=net(input)# torch.Size([1, 3, 512, 512])
+        ## 저장
+
+#%%
+
+#%%
+'''for test_file in test_lst:
     test_file=os.path.join(test_dir,test_file)
     if os.path.isfile(test_file):
         ### 파일 열 떄 자동보정해서 넣을수 없나 ㅇㅅㅇ?
@@ -100,5 +121,5 @@ for test_file in test_lst:
             comp.resize((512, 1024)).save(os.path.join(result_dir, nameee))
             
         # output=Image.fromarray(np.uint8(output.squeeze()*225))
-        # output.resize(origin_size).save(os.path.join(result_dir, name))
+        # output.resize(origin_size).save(os.path.join(result_dir, name))'''
 # %%
