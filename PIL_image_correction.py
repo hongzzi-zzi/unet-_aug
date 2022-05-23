@@ -36,5 +36,3 @@ for i in imglist:
     plt.imshow(ImageOps_array)
     plt.show()
 #%%
-    
-    

@@ -7,21 +7,17 @@ import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
 
-
+from dataset import *
 from model import UNet
 from util import load
-from dataset import *
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+
 %matplotlib inline 
 import matplotlib.pyplot as plt
 
 warnings.filterwarnings(action='ignore')
-
-#%% functions
-fn_denorm=lambda x, mean, std:(x*std)+mean
-fn_class = lambda x: 1.0 * (x > 0.5)
 #%% parser
 '''parser = argparse.ArgumentParser(description="read png",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -44,7 +40,7 @@ lr = 1e-3
 batch_size = 4
 test_dir = '/home/h/Desktop/data/random_test/m_label'
 ckpt_dir = 'random_train/ckpt'
-result_dir ='random_train/result'
+result_dir ='random_train/mask'
 test_lst=os.listdir(test_dir)
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)
@@ -55,10 +51,16 @@ print("result dir: %s" % result_dir)
 # make folder if doesn't exist
 if not os.path.exists(result_dir):
     os.makedirs(result_dir)
+if not os.path.exists(os.path.join(result_dir,'compare')):
+    os.makedirs(os.path.join(result_dir,'compare'))
     print('make new result_dir')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #%%
 ## 한번 쭉 보정한다음에 넣으,면 더 잘 알아들을까 ?ㅇㅅㅇ
+fn_denorm=lambda x, mean, std:(x*std)+mean
+fn_class = lambda x: 1.0 * (x > 0.5)
+tensor2PIL=transforms.ToPILImage()
+
 transform=transforms.Compose([transforms.Resize((512, 512)),
                               transforms.ToTensor(),
                               transforms.Normalize(mean=0.5, std=0.5)])
@@ -71,8 +73,6 @@ fn_loss=nn.BCEWithLogitsLoss().to(device)
 optim=torch.optim.Adam(net.parameters(), lr=lr)
 net, optim, st_epoch = load(ckpt_dir=ckpt_dir, net=net, optim=optim)
 #%%
-tensor2PIL=transforms.ToPILImage()
-idx=0
 with torch.no_grad(): # no backward pass 
     net.eval()
     for batch, data in enumerate(test_loader, 1):
@@ -83,9 +83,10 @@ with torch.no_grad(): # no backward pass
             outputimg=tensor2PIL(fn_class(output[i]))
             
             name=data[1][i].split('/')[-1].replace('m_label', 't_output')
+            outputimg.save(os.path.join(result_dir, name),'png')
+            
             new_image = Image.new('RGB',(1024,512), (250,250,250))
             new_image.paste(inputimg,(0,0))
             new_image.paste(outputimg,(512,0))
-            new_image.save(os.path.join(result_dir, name.replace('t_output', 'comp')),'png')
-            outputimg.save(os.path.join(result_dir, name),'png')
+            new_image.save(os.path.join(os.path.join(result_dir,'compare'), name.replace('t_output', 'comp')),'png')
 #%%

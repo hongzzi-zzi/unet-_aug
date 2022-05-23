@@ -46,4 +46,4 @@ class CustomDataset(Dataset):
             image = Image.open(img_path).convert('RGB')
             if self.transform:
                 image = self.transform(image)
-            return image
+            return image, img_path
