@@ -88,8 +88,6 @@ with torch.no_grad(): # no backward pass
     for batch, data in enumerate(test_loader, 1):
         input=data[0].to(device).unsqueeze(0)
         # print(input.shape)# torch.Size([1, 3, 512, 512])
-        
-        # print(input.shape)
         output=net(input)# torch.Size([1, 3, 512, 512])
         output=fn_tonumpy(fn_class(output))# (1, 512, 512, 1)
         input=fn_tonumpy(fn_denorm(input, mean=0.5, std=0.5))# (4, 512, 512, 3)
