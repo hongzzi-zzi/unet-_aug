@@ -37,10 +37,11 @@ for i in range(len(input_lst)):
     mask_path=os.path.join(mask_dir, mask_lst[i])
     
     name=mask_lst[i].split('.')[0].replace('t_output', 't_UNet')
+    print(name)
     input=Image.open(input_path).resize((512, 512))
     mask=Image.open(mask_path).resize((512, 512))
     
     bg = Image.open('transparence.png').resize((512, 512))
-    bg.paste(input,mask).convert('RGB')
+    bg.paste(input,mask)
     bg.save(os.path.join(result_dir,name+'.png'))
 #%%
