@@ -9,6 +9,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets, transforms
 from PIL import Image
 import random
+from PIL import Image, ImageEnhance, ImageOps
 
 
 class CustomDataset(Dataset):
@@ -25,25 +26,29 @@ class CustomDataset(Dataset):
         ## pillow 사용
         if self.label_dir!=None:
             img_path=os.path.join(self.img_dir,sorted(os.listdir(self.img_dir))[idx])
-            image = Image.open(img_path).convert('RGB')
-            
             label_path=os.path.join(self.label_dir,sorted(os.listdir(self.label_dir))[idx])
-            label = Image.open(label_path)
+            if os.path.isfile(img_path) and os.path.isfile(label_path):
+                image = Image.open(img_path).convert('RGB')
+                label = Image.open(label_path)
             # RGBA 중 마지막
-            label=label.split()[-1]
+                label=label.split()[-1]
             
-            seed=random.randint(1, 10)
-            # seed 고정해주기!!!!!!!!!!!!!!
-            if self.transform:
-                torch.manual_seed(seed)
-                image = self.transform(image)
-            if self.transform_l:
-                torch.manual_seed(seed)
-                label = self.transform_l(label)
-            return image, label
+                seed=random.randint(1, 10)
+                # seed 고정해주기!!!!!!!!!!!!!!
+                if self.transform:
+                    torch.manual_seed(seed)
+                    image = self.transform(image)
+                if self.transform_l:
+                    torch.manual_seed(seed)
+                    label = self.transform_l(label)
+                return image, label
+            return None
         else:
             img_path=os.path.join(self.img_dir,sorted(os.listdir(self.img_dir))[idx])
-            image = Image.open(img_path).convert('RGB')
-            if self.transform:
-                image = self.transform(image)
-            return image, img_path
+            if os.path.isfile(img_path):
+                image = Image.open(img_path).convert('RGB')
+                # image=ImageEnhance.Color(image).enhance(2)
+                if self.transform:
+                    image = self.transform(image)
+                return image, img_path
+            return None

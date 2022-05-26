@@ -38,9 +38,9 @@ test_lst=os.listdir(test_dir)'''
 #%%
 lr = 1e-3
 batch_size = 4
-test_dir = '/home/h/Desktop/data/random_test/m_label'
-ckpt_dir = 'random_train/ckpt'
-result_dir ='random_train/mask'
+test_dir = '/home/h/Desktop/data/random_train3/m_label'
+ckpt_dir = 'random_train3/ckpt'
+result_dir ='random_train3/result'
 test_lst=os.listdir(test_dir)
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)
@@ -58,7 +58,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #%%
 ## 한번 쭉 보정한다음에 넣으,면 더 잘 알아들을까 ?ㅇㅅㅇ
 fn_denorm=lambda x, mean, std:(x*std)+mean
-fn_class = lambda x: 1.0 * (x > 0.5)
+lst = lambda x: 1.0 * (x > 0.5)
 tensor2PIL=transforms.ToPILImage()
 
 transform=transforms.Compose([transforms.Resize((512, 512)),
@@ -80,13 +80,13 @@ with torch.no_grad(): # no backward pass
         output=net(input)# torch.Size([1, 3, 512, 512])
         for i in range(input.shape[0]):
             inputimg=tensor2PIL(fn_denorm(input[i], mean=0.5, std=0.5))
-            outputimg=tensor2PIL(fn_class(output[i]))
+            outputimg=tensor2PIL(lst(output[i]))
             
-            name=data[1][i].split('/')[-1].replace('m_label', 't_output')
-            outputimg.save(os.path.join(result_dir, name),'png')
+            name=data[1][i].split('/')[-1].replace('m_label', 't_output').replace('jpg','png')
+            outputimg.save(os.path.join(result_dir, name))
             
             new_image = Image.new('RGB',(1024,512), (250,250,250))
             new_image.paste(inputimg,(0,0))
             new_image.paste(outputimg,(512,0))
-            new_image.save(os.path.join(os.path.join(result_dir,'compare'), name.replace('t_output', 'comp')),'png')
+            new_image.save(os.path.join(os.path.join(result_dir,'compare'), name.replace('t_output', 'comp')))
 #%%

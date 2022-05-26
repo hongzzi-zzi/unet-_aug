@@ -16,6 +16,14 @@ from dataset import *
 from model import UNet
 from util import *
 #%%
+'''
+    random: 그냥 랜덤
+    random2: 그냥랜덤+5-3
+    random3: 전체data 90 train->1 윗니 잘안나옴
+    random_train copy: 그냥랜덤(epoch 100)+train continue(원래꺼+ 5-3, 5-4 반쯤만 추가한 trainset)
+    random_train copy 2:그냥랜덤(epoch 100)+train continue(5-3, 5-4 반쯔만)
+'''
+#%%
 '''# # parser
 # parser = argparse.ArgumentParser(description="Train the UNet",
 #                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -41,14 +49,25 @@ from util import *
 # train_continue = args.train_continue'''
 #%%
 # training parameter
+'''lr = 1e-3
+batch_size = 6 # 6이 최대
+num_epoch = 150
+ckpt_dir = 'random_train copy/ckpt'
+log_dir = 'random_train copy/log'
+train_continue = 'on'
+## dlalwl
+img_dir='/home/h/Desktop/data/random_train (copy)/m_label'
+label_dir='/home/h/Desktop/data/random_train (copy)/t_label'
+'''
 lr = 1e-3
-batch_size = 4
-num_epoch = 100
-ckpt_dir = './random_train/ckpt'
-log_dir = './random_train/log'
-train_continue = 'off'
-img_dir='/home/h/Desktop/data/random_train/m_label'
-label_dir='/home/h/Desktop/data/random_train/t_label'
+batch_size = 6 # 6이 최대
+num_epoch = 150
+ckpt_dir = 'random_train copy 2/ckpt'
+log_dir = 'random_train copy 2/log'
+train_continue = 'on'
+## dlalwl
+img_dir='/home/h/Desktop/data/random_train (copy)/m_label/5-34'
+label_dir='/home/h/Desktop/data/random_train (copy)/t_label/5-34'
 
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)

@@ -4,6 +4,8 @@ from importlib.resources import path
 import shutil
 import random
 from glob import glob
+from PIL import Image, ImageEnhance, ImageOps
+
 #%%
 dir_input=glob('/home/h/Desktop/data/*/m_label/*')
 dir_label=glob('/home/h/Desktop/data/*/t_label/*')
@@ -13,7 +15,7 @@ lst_label=sorted(dir_label)
 lst_all=[[i, l]for i, l in zip(lst_input, lst_label)]
 img_cnt=len(lst_all)
 #%%
-test_cnt=int(img_cnt*0.2)
+test_cnt=int(img_cnt*0.1)
 train_cnt=img_cnt-test_cnt
 random.shuffle(lst_all)
 lst_test=lst_all[:test_cnt]
@@ -24,8 +26,8 @@ print(len(lst_test))
 print(len(lst_train))
 
 #%%
-train_path="/home/h/Desktop/data/random_train"
-test_path="/home/h/Desktop/data/random_test"
+train_path="/home/h/Desktop/data/random_train3"
+test_path="/home/h/Desktop/data/random_test3"
 
 if os.path.exists(test_path):
     shutil.rmtree(test_path)
