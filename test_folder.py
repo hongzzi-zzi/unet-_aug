@@ -38,9 +38,9 @@ test_lst=os.listdir(test_dir)'''
 #%%
 lr = 1e-3
 batch_size = 4
-test_dir = '/home/h/Desktop/data/random_train3/m_label'
-ckpt_dir = 'random_train3/ckpt'
-result_dir ='random_train3/result'
+test_dir = '/home/h/Desktop/data/random/train/m_label'
+ckpt_dir = '/home/h/unet_pytorch_testing/random/ckpt'
+result_dir ='/home/h/unet_pytorch_testing/random/result'
 test_lst=os.listdir(test_dir)
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)
@@ -49,8 +49,8 @@ print("ckpt dir: %s" % ckpt_dir)
 print("result dir: %s" % result_dir)
 
 # make folder if doesn't exist
-if not os.path.exists(result_dir):
-    os.makedirs(result_dir)
+if not os.path.exists(os.path.join(result_dir,'mask')):
+    os.makedirs(os.path.join(result_dir,'mask'))
 if not os.path.exists(os.path.join(result_dir,'compare')):
     os.makedirs(os.path.join(result_dir,'compare'))
     print('make new result_dir')
@@ -83,7 +83,7 @@ with torch.no_grad(): # no backward pass
             outputimg=tensor2PIL(lst(output[i]))
             
             name=data[1][i].split('/')[-1].replace('m_label', 't_output').replace('jpg','png')
-            outputimg.save(os.path.join(result_dir, name))
+            outputimg.save(os.path.join(os.path.join(result_dir,'mask'), name))
             
             new_image = Image.new('RGB',(1024,512), (250,250,250))
             new_image.paste(inputimg,(0,0))

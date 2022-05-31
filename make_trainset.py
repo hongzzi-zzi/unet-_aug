@@ -12,6 +12,7 @@ dir_label=glob('/home/h/Desktop/data/*/t_label/*')
 
 lst_input=sorted(dir_input)
 lst_label=sorted(dir_label)
+print(lst_input)
 lst_all=[[i, l]for i, l in zip(lst_input, lst_label)]
 img_cnt=len(lst_all)
 #%%
@@ -26,8 +27,8 @@ print(len(lst_test))
 print(len(lst_train))
 
 #%%
-train_path="/home/h/Desktop/data/random_train3"
-test_path="/home/h/Desktop/data/random_test3"
+train_path="/home/h/Desktop/data/random/train"
+test_path="/home/h/Desktop/data/random/test"
 
 if os.path.exists(test_path):
     shutil.rmtree(test_path)

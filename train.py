@@ -17,11 +17,16 @@ from model import UNet
 from util import *
 #%%
 '''
-    random: 그냥 랜덤
-    random2: 그냥랜덤+5-3
-    random3: 전체data 90 train->1 윗니 잘안나옴
-    random_train copy: 그냥랜덤(epoch 100)+train continue(원래꺼+ 5-3, 5-4 반쯤만 추가한 trainset)
-    random_train copy 2:그냥랜덤(epoch 100)+train continue(5-3, 5-4 반쯔만)
+    모든게 trainset 1 2 윗니 잘 안나옴 ㅇㅅㅇ...
+    
+    random3: 전체data 90 train->1 윗니 잘안나옴(100)
+    random_train copy: 그냥랜덤(epoch 100)+train continue(원래꺼+ 5-3, 5-4 반쯤만 추가한 trainset, 150)-> 1 윗니 잘안나옴
+    random_train copy 2:그냥랜덤(epoch 100)+train continue(5-3, 5-4 반쯔만, 150)-> 1윗니 잘안나옴
+    
+    -->random3 +trainset1(ckpt이어서 130번)해도 앞니 잘안나오는거 이씀
+    이 커야 나옴
+    
+    random4:1, 2 crop epoch 100->뭔가 잘못됨...야발
 '''
 #%%
 '''# # parser
@@ -49,15 +54,15 @@ from util import *
 # train_continue = args.train_continue'''
 #%%
 # training parameter
-'''lr = 1e-3
-batch_size = 6 # 6이 최대
-num_epoch = 150
-ckpt_dir = 'random_train copy/ckpt'
-log_dir = 'random_train copy/log'
+lr = 1e-3
+batch_size = 4 # 6이 최대
+num_epoch = 100
+ckpt_dir = 'random/ckpt'
+log_dir = 'random/log'
 train_continue = 'on'
 ## dlalwl
-img_dir='/home/h/Desktop/data/random_train (copy)/m_label'
-label_dir='/home/h/Desktop/data/random_train (copy)/t_label'
+img_dir='/home/h/Desktop/data/random/train/m_label'
+label_dir='/home/h/Desktop/data/random/train/t_label'
 '''
 lr = 1e-3
 batch_size = 6 # 6이 최대
@@ -66,8 +71,9 @@ ckpt_dir = 'random_train copy 2/ckpt'
 log_dir = 'random_train copy 2/log'
 train_continue = 'on'
 ## dlalwl
-img_dir='/home/h/Desktop/data/random_train (copy)/m_label/5-34'
-label_dir='/home/h/Desktop/data/random_train (copy)/t_label/5-34'
+img_dir='/home/h/Desktop/data/random_train (copy)/m_5-34'
+label_dir='/home/h/Desktop/data/random_train (copy)t_/5-34'
+'''
 
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)

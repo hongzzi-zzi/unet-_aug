@@ -27,28 +27,25 @@ class CustomDataset(Dataset):
         if self.label_dir!=None:
             img_path=os.path.join(self.img_dir,sorted(os.listdir(self.img_dir))[idx])
             label_path=os.path.join(self.label_dir,sorted(os.listdir(self.label_dir))[idx])
-            if os.path.isfile(img_path) and os.path.isfile(label_path):
-                image = Image.open(img_path).convert('RGB')
-                label = Image.open(label_path)
+
+            image = Image.open(img_path).convert('RGB')
+            label = Image.open(label_path)
             # RGBA 중 마지막
-                label=label.split()[-1]
+            label=label.split()[-1]
             
-                seed=random.randint(1, 10)
-                # seed 고정해주기!!!!!!!!!!!!!!
-                if self.transform:
-                    torch.manual_seed(seed)
-                    image = self.transform(image)
-                if self.transform_l:
-                    torch.manual_seed(seed)
-                    label = self.transform_l(label)
-                return image, label
-            return None
+            seed=random.randint(1, 10)
+            # seed 고정해주기!!!!!!!!!!!!!!
+            if self.transform:
+                torch.manual_seed(seed)
+                image = self.transform(image)
+            if self.transform_l:
+                torch.manual_seed(seed)
+                label = self.transform_l(label)
+            return image, label
         else:
             img_path=os.path.join(self.img_dir,sorted(os.listdir(self.img_dir))[idx])
-            if os.path.isfile(img_path):
-                image = Image.open(img_path).convert('RGB')
-                # image=ImageEnhance.Color(image).enhance(2)
-                if self.transform:
-                    image = self.transform(image)
-                return image, img_path
-            return None
+            image = Image.open(img_path).convert('RGB')
+            # image=ImageEnhance.Color(image).enhance(2)
+            if self.transform:
+                image = self.transform(image)
+            return image, img_path

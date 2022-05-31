@@ -32,9 +32,9 @@ lr = 1e-3
 num_epoch = 100
 
 ########################### path ############################
-test_file='test/input5-2_059.JPG'
-ckpt_dir = 'RGB_batch4_lr1e-3_train/ckpt'
-result_dir ='./testresult'
+test_file='/home/h/Pictures/Screenshot from 2022-05-30 14-05-30.png'
+ckpt_dir = '/home/h/unet_pytorch_testing/random_train3/ckpt'
+result_dir ='/home/h/unet_pytorch_testing/'
 #############################################################
 
 print("learning rate: %.4e" % lr)
@@ -75,9 +75,10 @@ with torch.no_grad(): # no backward pass
     output=fn_tonumpy(fn_class(output))# (1, 512, 512, 1)
     input=fn_tonumpy(fn_denorm(input, mean=0.5, std=0.5))# (4, 512, 512, 3)
     
-    name='output_'+test_file.split('_')[-1]
-    nameee='comp_'+test_file.split('_')[-1]
-    
+    name='output_'+test_file.split('/')[-1]
+    nameee='comp_'+test_file.split('/')[-1]
+    print(name)
+    print(nameee)
     print(output.shape)
     print(input.shape)
     
@@ -89,8 +90,11 @@ with torch.no_grad(): # no backward pass
     # plt.show()
 
     comp=Image.fromarray(np.uint8(comparray.squeeze()*225))
-    comp.resize((origin_size[0], 2*origin_size[1])).save(os.path.join(result_dir, nameee))
+    # comp.resize((origin_size[0], 2*origin_size[1])).save(os.path.join(result_dir, nameee))
+    comp.save(os.path.join(result_dir, nameee))
     
     output=Image.fromarray(np.uint8(output.squeeze()*225))
-    output.resize(origin_size).save(os.path.join(result_dir, name))
+    # output.resize(origin_size).save(os.path.join(result_dir, name))
+    output.save(os.path.join(result_dir, name))
+    
 # %%
