@@ -17,9 +17,9 @@ input_dir=args.input_path
 mask_dir=args.mask_path
 result_dir=args.result_path'''
 #%%
-input_dir='/home/h/Desktop/data/random_train3/m_label'
-mask_dir='random_train3/result/mask'
-result_dir='random_train3/result/label'
+input_dir='/home/h/Desktop/data/random/test/m_label'
+mask_dir='/home/h/unet_pytorch_testing/random_b/180_result_test/mask'
+result_dir='/home/h/unet_pytorch_testing/random_b/180_result_test/label'
 if not os.path.exists(result_dir):
     os.makedirs(result_dir)
 input_lst=os.listdir(input_dir)

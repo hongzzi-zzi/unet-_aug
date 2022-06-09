@@ -11,7 +11,6 @@ from PIL import Image
 import random
 from PIL import Image, ImageEnhance, ImageOps
 
-
 class CustomDataset(Dataset):
     def __init__(self, img_dir, label_dir=None, transform=None, transform_l=None):
         self.img_dir = img_dir
@@ -41,7 +40,7 @@ class CustomDataset(Dataset):
             if self.transform_l:
                 torch.manual_seed(seed)
                 label = self.transform_l(label)
-            return image, label
+            return image, label, img_path
         else:
             img_path=os.path.join(self.img_dir,sorted(os.listdir(self.img_dir))[idx])
             image = Image.open(img_path).convert('RGB')
@@ -49,3 +48,4 @@ class CustomDataset(Dataset):
             if self.transform:
                 image = self.transform(image)
             return image, img_path
+        

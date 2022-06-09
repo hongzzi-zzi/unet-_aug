@@ -5,8 +5,9 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 #%%
-path='/home/h/Desktop/data/random_train/m_label'
+path='/home/h/Desktop/data/random/test/m_label'
 imglist=os.listdir(path)[:5]
+img='/home/h/Desktop/data/random/test/m_label/m_label1_013.png'
 #%%
 def img_histoequalize(img):
     R, G, B = cv2.split(img)

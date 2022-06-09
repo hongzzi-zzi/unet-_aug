@@ -15,6 +15,13 @@ from dataset import *
 from model import UNet
 from util import *
 #%%
+'''
+random_b loss:  0.2659 
+sharpness_autocontrast loss: 0.0083
+근데 인터넷에서찾은건 random_b ㅇㅅㅇ(sharpness_autocontrast 트레인세트에 안드러감)
+->sharpness_autocontrast 105: d 5번추가
+'''
+#%%
 '''# parser
 parser = argparse.ArgumentParser(description="Test the UNet",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -43,14 +50,16 @@ print("result dir: %s" % result_dir)'''
 lr = 1e-3
 batch_size =4
 num_epoch = 100
-data_dir ='/home/h/Desktop/data/random_test/m_label'
-ckpt_dir=
-result_dir ='random_train/result'
+img_dir ='/home/h/Desktop/data/dd/d1d2/m_label'
+label_dir ='/home/h/Desktop/data/dd/d1d2/t_label'
+ckpt_dir='/home/h/unet_pytorch_testing/sharpness_autocontrast/ckpt'
+result_dir ='/home/h/unet_pytorch_testing/sharpness_autocontrast/eval'
 
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)
 print("number of epoch: %d" % num_epoch)
-print("data dir: %s" % data_dir)
+print("img dir: %s" % img_dir)
+print("label dir: %s" % label_dir)
 print("ckpt dir: %s" % ckpt_dir)
 print("result dir: %s" % result_dir)
 
@@ -60,12 +69,17 @@ if not os.path.exists(result_dir):
 
 #%%
 # network train
-transform=transforms.Compose([transforms.ToTensor(),
+# transform=transforms.Compose([transforms.ToTensor(),
+#                               transforms.Normalize(mean=0.5, std=0.5)])
+transform=transforms.Compose([transforms.Resize((512, 512)),
+                              transforms.RandomAutocontrast(p=1),
+                              transforms.RandomAdjustSharpness(sharpness_factor=2,p=1),
+                              transforms.ToTensor(),
                               transforms.Normalize(mean=0.5, std=0.5)])
-test_dataset=CustomDataset('/home/h/Desktop/data/d2/m_label', '/home/h/Desktop/data/d2/t_label', transform=transform)
-
-# train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, sampler=train_sampler)
-# dataset_test=Dataset(data_dir='teeth_all/test', transform=transform)
+transform_label=transforms.Compose([transforms.Resize((512, 512)),
+                              transforms.ToTensor(),
+                              ])
+test_dataset=CustomDataset(img_dir=img_dir,label_dir=label_dir,   transform=transform, transform_l=transform_label)       
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 
@@ -82,15 +96,11 @@ num_data_test=len(test_dataset)
 
 num_batch_test=np.ceil(num_data_test/batch_size)
 
-# label size
-# label_lst=os.listdir(os.path.join(data_dir, 'label'))
-# label_path=os.path.join(data_dir, 'label', label_lst[0])
-# origin_size=(512, 512)
-
 # functions
 fn_tonumpy=lambda x:x.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
 fn_denorm=lambda x, mean, std:(x*std)+mean
 fn_class=lambda x:1.0*(x>0.5) # network output image->binary class로 분류
+tensor2PIL=transforms.ToPILImage()
 
 #%%
 # test network
@@ -102,38 +112,28 @@ with torch.no_grad(): # no backward pass
 
     for batch, data in enumerate(test_loader, 1):
         # forward pass
-        label = data['label'].to(device)
-        input = data['input'].to(device)
-        output=net(input)# torch.Size([4, 1, 512, 512])
+        input=data[0].to(device)
+        label=data[1].to(device)
+        output=net(input)
         
         # loss function
         loss = fn_loss(output, label)
         loss_arr+=[loss.item()]
-
         print("TEST: BATCH %04d / %04d | LOSS %.4f" %
                       (batch, num_batch_test, np.mean(loss_arr)))
-
-        label=fn_tonumpy(label)
-        input=fn_tonumpy(fn_denorm(input, mean=0.5, std=0.5))# (4, 512, 512, 3)
-        output=fn_tonumpy(fn_class(output))# (4, 512, 512, 1)
         
-        # save result
-        for i in range(label.shape[0]):
-            id = batch_size * (batch - 1) + i
+        for i in range(input.shape[0]):
+            inputimg=tensor2PIL(fn_denorm(input[i], mean=0.5, std=0.5))
+            outputimg=tensor2PIL(fn_class(output[i]))
+            bg= Image.open('transparence.png').resize((512, 512)) 
+            bg.paste(inputimg,outputimg)
             
-            outputpath=os.path.join(result_dir, 'output_%04d.png' % id)
-            # inputpath=os.path.join(result_dir, 'input_%04d.png' % id)
-            # labelpath=os.path.join(result_dir, 'label_%04d.png' % id)
-            
-            outputimg=Image.fromarray(np.uint8(output[i].squeeze() *225))
-            inputimg=Image.fromarray(np.uint8(input[i].squeeze()*255))
-            
-            compimg=Image.new('RGB',(1024, 512))
-            compimg.paste(inputimg,(0,0))
-            compimg.paste(outputimg,(512,0))
-            compimg.save(outputpath)
-            
-            # inputimg.resize(origin_size).save(inputpath)
-            # labelimg=Image.fromarray(np.uint8(label[i].squeeze()*255))
-            # labelimg.resize(origin_size).save(labelpath)
+            name=data[2][i].split('/')[-1].replace('m_label', 'eval').replace('jpg','png')
+
+            new_image = Image.new('RGB',(1024,512), (250,250,250))
+            new_image.paste(inputimg,(0,0))
+            new_image.paste(bg,(512,0))
+            new_image.save(os.path.join(os.path.join(result_dir), name))
 print("AVERAGE TEST: BATCH %04d / %04d | LOSS %.4f" %(batch, num_batch_test, np.mean(loss_arr)))
+
+# %%
