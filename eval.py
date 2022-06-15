@@ -8,21 +8,25 @@ import torch
 import torch.nn as nn
 from PIL import Image
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets, transforms
 
 from dataset import *
 from model import UNet
 from util import *
+
 #%%
 '''
-random_b loss:  0.2659 
-sharpness_autocontrast loss: 0.0083
+random_b loss:  0.2659(random/test)/0.1837(d3)
+sharpness_autocontrast loss: 0.0083(random2/test)/0.4814(d3)
 근데 인터넷에서찾은건 random_b ㅇㅅㅇ(sharpness_autocontrast 트레인세트에 안드러감)
-->sharpness_autocontrast 105: d 5번추가
+sharpness_autocontrast 50: 0.0095(random2/test)/0.4246(d3)
+->sharpness_autocontrast 105: 0.0283(random2/test)/0.0360(d3) 
+    ->1, 2 너무안나와서 그냥 삭제
+autocontrast :  0.0062(random/test)/0.1808(d)
 '''
 #%%
-'''# parser
+'''
+# parser
 parser = argparse.ArgumentParser(description="Test the UNet",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--lr", default=1e-3,  type=float, dest="lr")
@@ -45,15 +49,16 @@ print("batch size: %d" % batch_size)
 print("number of epoch: %d" % num_epoch)
 print("data dir: %s" % data_dir)
 print("ckpt dir: %s" % ckpt_dir)
-print("result dir: %s" % result_dir)'''
+print("result dir: %s" % result_dir)
+'''
 #%%
 lr = 1e-3
 batch_size =4
 num_epoch = 100
-img_dir ='/home/h/Desktop/data/dd/d1d2/m_label'
-label_dir ='/home/h/Desktop/data/dd/d1d2/t_label'
-ckpt_dir='/home/h/unet_pytorch_testing/sharpness_autocontrast/ckpt'
-result_dir ='/home/h/unet_pytorch_testing/sharpness_autocontrast/eval'
+img_dir ='/home/h/Desktop/data/dd/m_label'
+label_dir ='/home/h/Desktop/data/dd/t_label'
+ckpt_dir='/home/h/unet_pytorch_testing/autocontrast/ckpt'
+result_dir ='/home/h/unet_pytorch_testing/autocontrast/eval_100_d'
 
 print("learning rate: %.4e" % lr)
 print("batch size: %d" % batch_size)
@@ -69,11 +74,9 @@ if not os.path.exists(result_dir):
 
 #%%
 # network train
-# transform=transforms.Compose([transforms.ToTensor(),
-#                               transforms.Normalize(mean=0.5, std=0.5)])
 transform=transforms.Compose([transforms.Resize((512, 512)),
                               transforms.RandomAutocontrast(p=1),
-                              transforms.RandomAdjustSharpness(sharpness_factor=2,p=1),
+                            #   transforms.RandomAdjustSharpness(sharpness_factor=2,p=1),
                               transforms.ToTensor(),
                               transforms.Normalize(mean=0.5, std=0.5)])
 transform_label=transforms.Compose([transforms.Resize((512, 512)),
@@ -97,7 +100,6 @@ num_data_test=len(test_dataset)
 num_batch_test=np.ceil(num_data_test/batch_size)
 
 # functions
-fn_tonumpy=lambda x:x.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
 fn_denorm=lambda x, mean, std:(x*std)+mean
 fn_class=lambda x:1.0*(x>0.5) # network output image->binary class로 분류
 tensor2PIL=transforms.ToPILImage()
