@@ -16,14 +16,14 @@ torch_model, optim, st_epoch = load(ckpt_dir='autocontrast/ckpt', net=torch_mode
 
 # function
 img2tensor= transforms.ToTensor()
-# autocontrast=
+norm=transforms.Normalize(mean=0.5, std=0.5)
 
 # Set the model in evaluation mode.
 torch_model.eval()
 #%%
 # Trace the model with random data.
 img_path='/home/h/unet_pytorch_testing/test.jpg'
-example_input = img2tensor(Image.open(img_path).convert('RGB').resize((512, 512))).to(device).unsqueeze(0)##batch가 없으니까...
+example_input = norm(img2tensor(Image.open(img_path).convert('RGB').resize((512, 512)))).to(device).unsqueeze(0)##batch가 없으니까...
 traced_model = torch.jit.trace(torch_model, example_input)
 out = traced_model(example_input)
 #%%
@@ -51,4 +51,8 @@ model = ct.convert(
 # %%
 # Save the converted model.
 model.save("newmodel.mlmodel")
+# %%
+testimg_path='m_label5-5_009.png'
+test = norm(img2tensor(Image.open(testimg_path).convert('RGB').resize((512, 512)))).to(device).unsqueeze(0)##batch가 없으니까...
+model.predict({'data':test})
 # %%
